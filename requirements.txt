@@ -1,0 +1,7 @@
+pyautogui
+appdirs
+keyring
+pyyaml
+requests
+PyGObject
+psutil
