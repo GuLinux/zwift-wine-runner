@@ -15,11 +15,13 @@ logger = logging.getLogger(__name__)
 ZWIFT_WINDOWS_URL = 'https://cdn.zwift.com/app/ZwiftSetup.exe'
 RUNFROMPROCESS_URL = 'https://www.nirsoft.net/utils/runfromprocess.zip'
 EDGE_WEBVIEW_SETUP = 'https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/3717aef3-49b0-4c74-bf9c-8beee165346a/MicrosoftEdgeWebView2RuntimeInstallerX64.exe'
+EDGE_SETUP = 'https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/d1b0e946-e654-4d81-a42a-d581b8f3c40c/MicrosoftEdgeWebView2RuntimeInstallerX64.exe'
 DOTNET_VERSIONS_TO_INSTALL = [
         # '35',
         # '40',
         # '472',
         '48',
+        '20sp2',
     ]
 
 class ZwiftInstaller:
@@ -32,7 +34,7 @@ class ZwiftInstaller:
         # self.set_windows_version()
         self.__download(ZWIFT_WINDOWS_URL, self.file_path)
         logger.info('Installing Zwift')
-        subprocess_utils.run(['wine', self.file_path, '/NOICONS', '/NOCANCEL', '/SILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/NORESTARTAPPLICATIONS'], logname='install_zwift')
+        subprocess_utils.run(['wine', self.file_path, '/SP-', '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' '/NOCANCEL', '/NOICONS', '/NORESTARTAPPLICATIONS'], logname='install_zwift')
         set_zwift_username()
 
     def install_deps(self):
@@ -41,16 +43,22 @@ class ZwiftInstaller:
             logger.info(f'Installing dotnet{version}')
             subprocess_utils.run([
                 'winetricks',
+                '--unattended',
                 '--force',
                 f'dotnet{version}',
-                '--gui',
-                '--unattended',
+                'win10',
                 ], logname=f'dotnet{version}')
-        logger.info('Installing MsEdge webview runtime')
-        webview_file_path = self.__tempfile(os.path.basename(EDGE_WEBVIEW_SETUP))
-        self.__download(EDGE_WEBVIEW_SETUP, webview_file_path)
-        self.set_windows_version()
-        subprocess_utils.run(['wine', webview_file_path], logname='ms_edge_webview_setup')
+
+        subprocess_utils.run(['winetricks', '--unattended', 'd3dcompiler_47'])
+        # logger.info('Installing MsEdge webview runtime')
+        # webview_file_path = self.__tempfile(os.path.basename(EDGE_WEBVIEW_SETUP))
+        # self.__download(EDGE_WEBVIEW_SETUP, webview_file_path)
+        # self.set_windows_version()
+        # subprocess_utils.run(['wine', webview_file_path], logname='ms_edge_webview_setup')
+
+        edge_file_path = self.__tempfile(os.path.basename(EDGE_SETUP))
+        self.__download(EDGE_SETUP, edge_file_path)
+        subprocess_utils.run(['wine', edge_file_path])
 
     def prune(self):
         zwift_launcher.killall()
