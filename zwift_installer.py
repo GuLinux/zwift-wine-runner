@@ -90,6 +90,16 @@ class ZwiftInstaller:
         runfromprocess_zip_file.extract(settings.runfromprocess_filename, settings.zwift_path)
 
     def install_desktop_icon(self):
+        shutil.rmtree(os.path.join(os.environ.get('HOME'), '.local/share/applications/wine/Programs/Zwift'), ignore_errors=True)
+        try:
+            os.remove(os.path.join(os.environ.get('HOME'), 'Desktop/Zwift.desktop'))
+        except FileNotFoundError:
+            pass
+        try:
+            os.remove(os.path.join(os.environ.get('HOME'), 'Desktop/Zwift.lnk'))
+        except FileNotFoundError:
+            pass
+
         with open(settings.launcher_path, 'w') as desktop_file:
             desktop_file.write('''[Desktop Entry]
 Comment=
